@@ -1,19 +1,50 @@
-# PINDAHKAN SEMUA IMPORT KE PALING ATAS
 from flask import Flask, render_template, request
 import pickle
-import numpy as np
+import pandas as pd
 
 app = Flask(__name__)
 
-# Buka file pkl
-model = pickle.load(open('model_prediksi.pkl', 'rb'))
+# Load model + scaler
+with open("Personality.pkl", "rb") as f:
+    paket = pickle.load(f)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+model = paket["model"]
+scaler = paket["scaler"]
 
-# ... kode lainnya ...
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-# TARUH INI DI PALING BAWAH
+@app.route("/predict", methods=["POST"])
+def predict():
+    try:
+        data = pd.DataFrame([{
+            "Time_spent_Alone": float(request.form["time_spent_alone"]),
+            "Stage_fear": int(request.form["stage_fear"]),
+            "Social_event_attendance": float(request.form["social_event"]),
+            "Going_outside": float(request.form["going_outside"]),
+            "Drained_after_socializing": int(request.form["drained"]),
+            "Friends_circle_size": float(request.form["friends"]),
+            "Post_frequency": float(request.form["post_freq"])
+        }])
+
+        # WAJIB scale dulu
+        data_scaled = scaler.transform(data)
+
+        prediksi = model.predict(data_scaled)
+
+        mapping = {
+            0: "Extrovert",
+            1: "Introvert"
+        }
+
+        hasil = mapping.get(int(prediksi[0]), "Tidak diketahui")
+
+        return render_template("index.html", hasil=hasil)
+
+    except Exception as e:
+        print("ERROR:", e)
+        return render_template("index.html", hasil=f"Error: {e}")
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True) 

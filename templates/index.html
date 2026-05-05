@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personality Predictor 🧠</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; padding: 20px; }
+        h1 { text-align: center; color: #263238; }
+        
+        /* Grid Layout mirip Colab */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, 250px);
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        /* Desain Card */
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; color: #333; }
+        
+        input[type="number"], select {
+            width: 90%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        /* Tombol */
+        .btn-predict {
+            display: block;
+            width: 250px;
+            height: 45px;
+            margin: 0 auto;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        /* Hasil Prediksi */
+        .result-box {
+            margin-top: 30px;
+            text-align: center;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            color: #0d47a1;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Personality Predictor 🧠</h1>
+
+    <form action="/predict" method="POST">
+        <div class="grid-container">
+            <!-- Time Alone -->
+            <div class="card" style="background-color: #e3f2fd;">
+                <div class="card-title">⏱️ Time Alone (jam)</div>
+                <input type="number" name="time_spent_alone" value="10" min="0" max="24">
+            </div>
+
+            <!-- Stage Fear -->
+            <div class="card" style="background-color: #e8eaf6;">
+                <div class="card-title">😨 Stage Fear</div>
+                <select name="stage_fear">
+                    <option value="1">Yes</option>
+                    <option value="0" selected>No</option>
+                </select>
+            </div>
+
+            <!-- Social Events -->
+            <div class="card" style="background-color: #e0f2fe;">
+                <div class="card-title">🎉 Social Events</div>
+                <input type="number" name="social_event" value="7" min="0" max="10">
+            </div>
+
+            <!-- Going Outside -->
+            <div class="card" style="background-color: #fce4ec;">
+                <div class="card-title">🚶‍♂️ Going Outside</div>
+                <input type="number" name="going_outside" value="3" min="0" max="10">
+            </div>
+
+            <!-- Drained Socializing -->
+            <div class="card" style="background-color: #e8f5e9;">
+                <div class="card-title">😴 Drained Socializing</div>
+                <select name="drained">
+                    <option value="1">Yes</option>
+                    <option value="0" selected>No</option>
+                </select>
+            </div>
+
+            <!-- Friends Circle -->
+            <div class="card" style="background-color: #fff3e0;">
+                <div class="card-title">👥 Friends Circle</div>
+                <input type="number" name="friends" value="6" min="0" max="20">
+            </div>
+
+            <!-- Post Frequency -->
+            <div class="card" style="background-color: #f3e5f5;">
+                <div class="card-title">📱 Post Frequency</div>
+                <input type="number" name="post_freq" value="2" min="0" max="10">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-predict">Prediksi Personality</button>
+        <!-- Cari bagian ini di bawah tombol di index.html -->
+{% if hasil %}
+<div class="result-box">
+    <h2>✨ Personality Anda adalah: <span style="color:#ff5722;">{{ hasil }}</span> ✨</h2>
+</div>
+{% endif %}
+    </form>
+</body>
