@@ -3,124 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personality Predictor 🧠</title>
+    <title>AI Multi-Predictor 🧠👶</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; padding: 20px; }
-        h1 { text-align: center; color: #263238; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        header { background: #263238; color: white; text-align: center; padding: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
         
-        /* Grid Layout mirip Colab */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, 250px);
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        /* Desain Card */
-        .card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            text-align: center;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; color: #333; }
+        .container { max-width: 900px; margin: 30px auto; padding: 20px; }
         
-        input[type="number"], select {
-            width: 90%;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+        /* Tombol Tab */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .tab-btn { padding: 12px 25px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #ddd; transition: 0.3s; }
+        .tab-btn.active { background: #007bff; color: white; }
 
-        /* Tombol */
-        .btn-predict {
-            display: block;
-            width: 250px;
-            height: 45px;
-            margin: 0 auto;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-        }
+        /* Grid Layout */
+        .form-section { display: none; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .form-section.active { display: block; animation: fadeIn 0.5s; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { padding: 15px; border-radius: 10px; border: 1px solid #eee; text-align: center; }
+        
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
+        input, select { width: 90%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        
+        .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; }
+        .btn-pers { background: #28a745; }
+        .btn-stunt { background: #dc3545; }
 
-        /* Hasil Prediksi */
-        .result-box {
-            margin-top: 30px;
-            text-align: center;
-            padding: 15px;
-            background-color: #e3f2fd;
-            border-radius: 8px;
-            color: #0d47a1;
-        }
+        /* Kotak Hasil */
+        .result-box { margin-top: 20px; padding: 20px; text-align: center; border-radius: 10px; border-left: 5px solid; }
+        .res-pers { background: #e8f5e9; border-color: #28a745; color: #1b5e20; }
+        .res-stunt { background: #ffebee; border-color: #dc3545; color: #b71c1c; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1>Personality Predictor 🧠</h1>
+<header>
+    <h1>AI Multi-Predictor System</h1>
+    <p>RPL Projects - Smart Solutions</p>
+</header>
 
-    <form action="/predict" method="POST">
-        <div class="grid-container">
-            <!-- Time Alone -->
-            <div class="card" style="background-color: #e3f2fd;">
-                <div class="card-title">⏱️ Time Alone (jam)</div>
-                <input type="number" name="time_spent_alone" value="10" min="0" max="24">
-            </div>
+<div class="container">
+    <!-- Navigasi Tab -->
+    <div class="tabs">
+        <button class="tab-btn {% if active_tab != 'stunting' %}active{% endif %}" onclick="showTab('personality')">🧠 Personality</button>
+        <button class="tab-btn {% if active_tab == 'stunting' %}active{% endif %}" onclick="showTab('stunting')">👶 Cek Stunting</button>
+    </div>
 
-            <!-- Stage Fear -->
-            <div class="card" style="background-color: #e8eaf6;">
-                <div class="card-title">😨 Stage Fear</div>
-                <select name="stage_fear">
-                    <option value="1">Yes</option>
-                    <option value="0" selected>No</option>
-                </select>
+    <!-- FORM PERSONALITY -->
+    <div id="personality" class="form-section {% if active_tab != 'stunting' %}active{% endif %}">
+        <h2>Personality Predictor</h2>
+        <form action="/predict_personality" method="POST">
+            <div class="grid-container">
+                <div class="card" style="background:#e3f2fd;">
+                    <label>⏱️ Time Alone</label>
+                    <input type="number" name="time_spent_alone" value="10">
+                </div>
+                <div class="card" style="background:#e8eaf6;">
+                    <label>😨 Stage Fear</label>
+                    <select name="stage_fear">
+                        <option value="1">Yes</option><option value="0">No</option>
+                    </select>
+                </div>
+                <div class="card" style="background:#e0f2fe;">
+                    <label>🎉 Social Events</label>
+                    <input type="number" name="social_event" value="5">
+                </div>
+                <div class="card" style="background:#fce4ec;">
+                    <label>🚶‍♂️ Going Outside</label>
+                    <input type="number" name="going_outside" value="3">
+                </div>
+                <div class="card" style="background:#e8f5e9;">
+                    <label>😴 Drained</label>
+                    <select name="drained">
+                        <option value="1">Yes</option><option value="0">No</option>
+                    </select>
+                </div>
+                <div class="card" style="background:#fff3e0;">
+                    <label>👥 Friends Circle</label>
+                    <input type="number" name="friends" value="5">
+                </div>
+                <div class="card" style="background:#f3e5f5;">
+                    <label>📱 Post Freq</label>
+                    <input type="number" name="post_freq" value="2">
+                </div>
             </div>
+            <button type="submit" class="btn-submit btn-pers">Mulai Prediksi Karakter</button>
+        </form>
 
-            <!-- Social Events -->
-            <div class="card" style="background-color: #e0f2fe;">
-                <div class="card-title">🎉 Social Events</div>
-                <input type="number" name="social_event" value="7" min="0" max="10">
-            </div>
-
-            <!-- Going Outside -->
-            <div class="card" style="background-color: #fce4ec;">
-                <div class="card-title">🚶‍♂️ Going Outside</div>
-                <input type="number" name="going_outside" value="3" min="0" max="10">
-            </div>
-
-            <!-- Drained Socializing -->
-            <div class="card" style="background-color: #e8f5e9;">
-                <div class="card-title">😴 Drained Socializing</div>
-                <select name="drained">
-                    <option value="1">Yes</option>
-                    <option value="0" selected>No</option>
-                </select>
-            </div>
-
-            <!-- Friends Circle -->
-            <div class="card" style="background-color: #fff3e0;">
-                <div class="card-title">👥 Friends Circle</div>
-                <input type="number" name="friends" value="6" min="0" max="20">
-            </div>
-
-            <!-- Post Frequency -->
-            <div class="card" style="background-color: #f3e5f5;">
-                <div class="card-title">📱 Post Frequency</div>
-                <input type="number" name="post_freq" value="2" min="0" max="10">
-            </div>
+        {% if hasil_pers %}
+        <div class="result-box res-pers">
+            <h3>✨ Hasil Prediksi: <strong>{{ hasil_pers }}</strong></h3>
         </div>
+        {% endif %}
+    </div>
 
-        <button type="submit" class="btn-predict">Prediksi Personality</button>
-        <!-- Cari bagian ini di bawah tombol di index.html -->
-{% if hasil %}
-<div class="result-box">
-    <h2>✨ Personality Anda adalah: <span style="color:#ff5722;">{{ hasil }}</span> ✨</h2>
+    <!-- FORM STUNTING -->
+    <div id="stunting" class="form-section {% if active_tab == 'stunting' %}active{% endif %}">
+        <h2>Cek Status Gizi (Stunting)</h2>
+        <form action="/predict_stunting" method="POST">
+            <div class="grid-container">
+                <div class="card" style="background:#fff9c4;">
+                    <label>📅 Umur (Bulan)</label>
+                    <input type="number" name="umur" placeholder="Contoh: 24">
+                </div>
+                <div class="card" style="background:#b2ebf2;">
+                    <label>🚻 Jenis Kelamin</label>
+                    <select name="jk">
+                        <option value="0">Laki-laki</option>
+                        <option value="1">Perempuan</option>
+                    </select>
+                </div>
+                <div class="card" style="background:#c8e6c9;">
+                    <label>📏 Tinggi (cm)</label>
+                    <input type="number" step="0.1" name="tinggi" placeholder="Contoh: 85.5">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit btn-stunt">Cek Status Gizi</button>
+        </form>
+
+        {% if hasil_stunting %}
+        <div class="result-box res-stunt">
+            <h3>📊 Status Gizi: <strong>{{ hasil_stunting }}</strong></h3>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% endif %}
-    </form>
+
+<script>
+    function showTab(tabName) {
+        document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+
 </body>
+</html>
