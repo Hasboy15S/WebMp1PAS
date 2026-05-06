@@ -99,3 +99,5 @@ def predict_stunt():
 
 if __name__ == '__main__':
     app.run(debug=True)
+# Di bagian paling bawah app.py
+app = app # Menegaskan kembali variabel app untuk Vercel
