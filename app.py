@@ -45,7 +45,7 @@ def predict_pers():
         
         pred = model.predict(data_scaled)
         
-        mapping = {0: "Introvert", 1: "Extrovert"}
+        mapping = {1: "Introvert", 0: "Extrovert"}
         hasil = mapping.get(int(pred[0]), "Tidak Diketahui")
         
         return jsonify({'hasil': hasil}) # Mengirim JSON
