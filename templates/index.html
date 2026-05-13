@@ -1,144 +1,666 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TakuFlow AI</title>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
-        header { background: #263238; color: white; text-align: center; padding: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        
-        .container { max-width: 900px; margin: 30px auto; padding: 20px; }
-        
-        /* Tombol Tab */
-        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        .tab-btn { padding: 12px 25px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #ddd; transition: 0.3s; }
-        .tab-btn.active { background: #007bff; color: white; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TakuFlow AI — Multi-Predictor System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:    #111214;
+  --bg2:   #18191d;
+  --bg3:   #1e2026;
+  --line:  rgba(255,255,255,0.07);
+  --line2: rgba(255,255,255,0.12);
+  --glow:  #29b6f6;
+  --glow2: #0288d1;
+  --glow3: #81d4fa;
+  --green: #26c6a0;
+  --text:  #e4eaf2;
+  --text2: #7a8fa6;
+  --text3: #3d5060;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
-        /* Grid Layout */
-        .form-section { display: none; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .form-section.active { display: block; animation: fadeIn 0.5s; }
-        
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .card { padding: 15px; border-radius: 10px; border: 1px solid #eee; text-align: center; }
-        
-        label { display: block; font-weight: bold; margin-bottom: 8px; color: #555; }
-        input, select { width: 90%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        
-        .btn-submit { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; color: white; cursor: pointer; }
-        .btn-pers { background: #28a745; }
-        .btn-stunt { background: #dc3545; }
+/* ─── HEADER ─── */
+header { border-bottom:1px solid var(--line); background:var(--bg); position:relative; z-index:20; }
+.header-inner { display:flex; align-items:center; justify-content:space-between; padding:0 48px; height:62px; }
+.logo { display:flex; align-items:center; gap:10px; font-family:'Syne',sans-serif; font-size:17px; font-weight:700; letter-spacing:-.3px; color:var(--text); }
+.logo-mark { width:28px; height:28px; border:1.5px solid var(--glow); border-radius:5px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 12px rgba(41,182,246,.3); }
+.logo-mark::before { content:''; width:10px; height:10px; border-radius:50%; background:var(--glow); box-shadow:0 0 8px var(--glow); display:block; animation:blink 2.5s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+.logo span { color:var(--glow); }
+nav { display:flex; }
+nav a { display:flex; align-items:center; height:62px; padding:0 22px; font-size:13px; color:var(--text2); text-decoration:none; border-left:1px solid var(--line); transition:color .2s,background .2s; }
+nav a:last-child { border-right:1px solid var(--line); }
+nav a:hover { color:var(--text); background:var(--bg2); }
+.header-tag { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--glow); background:rgba(41,182,246,.08); border:1px solid rgba(41,182,246,.25); padding:5px 14px; border-radius:100px; }
 
-        /* Kotak Hasil */
-        .result-box { margin-top: 20px; padding: 20px; text-align: center; border-radius: 10px; border-left: 5px solid; }
-        .res-pers { background: #e8f5e9; border-color: #28a745; color: #1b5e20; }
-        .res-stunt { background: #ffebee; border-color: #dc3545; color: #b71c1c; }
+/* ─── TICKER ─── */
+.ticker-bar { border-bottom:1px solid var(--line); overflow:hidden; height:40px; display:flex; align-items:center; position:relative; }
+.ticker-bar::before,.ticker-bar::after { content:''; position:absolute; top:0; bottom:0; width:80px; z-index:2; pointer-events:none; }
+.ticker-bar::before { left:0; background:linear-gradient(90deg,var(--bg),transparent); }
+.ticker-bar::after  { right:0; background:linear-gradient(-90deg,var(--bg),transparent); }
+.ticker-track { display:flex; animation:ticker 30s linear infinite; white-space:nowrap; }
+@keyframes ticker { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.ticker-item { display:flex; align-items:center; padding:0 28px; border-right:1px solid var(--line); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text3); height:40px; white-space:nowrap; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+/* ─── HERO ─── */
+.hero { border-bottom:1px solid var(--line); }
+.hero-split { display:grid; grid-template-columns:1fr 1fr; border-left:1px solid var(--line); min-height:320px; }
+.hero-left { padding:60px 52px 52px; border-right:1px solid var(--line); }
+.hero-eyebrow { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--glow); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.hero-eyebrow::before { content:''; width:24px; height:1px; background:var(--glow); box-shadow:0 0 6px var(--glow); display:block; }
+.hero-title { font-family:'Syne',sans-serif; font-size:clamp(34px,4.2vw,54px); font-weight:800; line-height:1.04; letter-spacing:-1.5px; color:var(--text); }
+.hero-title em { font-style:normal; color:transparent; -webkit-text-stroke:1.5px rgba(41,182,246,.5); }
+.hero-right { padding:60px 52px 52px; display:flex; flex-direction:column; justify-content:space-between; }
+.hero-desc { font-size:15px; line-height:1.75; color:var(--text2); max-width:420px; margin-bottom:32px; }
+.hero-stats { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); }
+.hero-stat { background:var(--bg); padding:18px 20px; }
+.hero-stat-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; letter-spacing:-1px; color:var(--glow3); line-height:1; margin-bottom:4px; }
+.hero-stat-val.g { color:var(--green); }
+.hero-stat-label { font-size:10.5px; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; }
+
+/* ─── TAB NAV ─── */
+.tab-nav { border-bottom:1px solid var(--line); display:flex; border-left:1px solid var(--line); }
+.tab-btn { flex:1; display:flex; align-items:center; gap:14px; padding:20px 36px; border:none; border-right:1px solid var(--line); background:transparent; cursor:pointer; font-family:'Syne',sans-serif; font-size:15px; font-weight:600; color:var(--text2); transition:all .25s; position:relative; text-align:left; }
+.tab-btn::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--glow); box-shadow:0 0 8px var(--glow); transform:scaleX(0); transition:transform .3s; }
+.tab-btn.active { color:var(--text); background:var(--bg2); }
+.tab-btn.active::after { transform:scaleX(1); }
+.tab-num { font-family:'DM Sans',sans-serif; font-size:11px; font-weight:500; color:var(--text3); border:1px solid var(--line2); padding:3px 9px; border-radius:4px; letter-spacing:.05em; }
+.tab-btn.active .tab-num { color:var(--glow); border-color:rgba(41,182,246,.35); }
+.tab-sub { font-family:'DM Sans',sans-serif; font-size:12px; color:var(--text3); margin-left:auto; flex-shrink:0; }
+
+/* ─── PANEL ─── */
+.panel { display:none; }
+.panel.active { display:block; animation:fadeIn .35s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── MODULE HEADER (4-col like braga) ─── */
+.module-header { border-bottom:1px solid var(--line); display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid var(--line); }
+.mh-cell { padding:26px 30px; border-right:1px solid var(--line); }
+.mh-label { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text3); margin-bottom:8px; }
+.mh-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--text); letter-spacing:-.3px; margin-bottom:8px; }
+.mh-desc { font-size:12.5px; color:var(--text2); line-height:1.6; }
+.mh-badge { display:inline-flex; align-items:center; gap:6px; margin-top:10px; border:1px solid var(--line2); border-radius:100px; padding:4px 12px; font-size:11px; color:var(--text2); }
+.mh-badge.blue { border-color:rgba(41,182,246,.3); color:var(--glow3); }
+.mh-badge.green { border-color:rgba(38,198,160,.3); color:var(--green); }
+
+/* ─── ILLUS ROW ─── */
+.illus-row { border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr 1fr; border-left:1px solid var(--line); min-height:200px; }
+.illus-cell { border-right:1px solid var(--line); background:var(--bg2); display:flex; align-items:center; justify-content:center; padding:28px; position:relative; overflow:hidden; }
+.illus-label { position:absolute; top:14px; left:18px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); }
+
+/* ─── FORM CONTENT ─── */
+.form-content { border-left:1px solid var(--line); display:grid; grid-template-columns:1fr 1fr; }
+.form-side { border-right:1px solid var(--line); padding:34px 34px 38px; }
+.info-side  { border-right:1px solid var(--line); padding:34px 34px 38px; background:var(--bg2); }
+.section-eyebrow { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--text3); margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.section-eyebrow::after { content:''; flex:1; height:1px; background:var(--line); }
+
+/* Input rows */
+.input-rows { display:flex; flex-direction:column; }
+.input-row { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line); border-bottom:none; }
+.input-row:last-child { border-bottom:1px solid var(--line); }
+.input-row.solo .input-cell { border-right:none; }
+.input-cell { padding:13px 16px; border-right:1px solid var(--line); display:flex; flex-direction:column; gap:5px; }
+.input-cell:last-child { border-right:none; }
+.input-cell label { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); font-weight:500; }
+.input-cell input, .input-cell select { background:transparent; border:none; outline:none; color:var(--text); font-family:'Syne',sans-serif; font-size:16px; font-weight:600; width:100%; appearance:none; -webkit-appearance:none; }
+.input-cell input::placeholder { color:var(--text3); font-weight:400; font-size:14px; }
+.input-cell select option { background:var(--bg3); }
+.input-rows:focus-within { border-radius:4px; outline:1px solid rgba(41,182,246,.2); }
+
+/* Buttons */
+.btn-row { margin-top:18px; }
+.btn-primary { width:100%; padding:15px 24px; border:1px solid rgba(41,182,246,.4); border-radius:7px; background:rgba(41,182,246,.07); color:var(--glow3); font-family:'Syne',sans-serif; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:.02em; transition:all .25s; }
+.btn-primary:hover { background:rgba(41,182,246,.14); box-shadow:0 0 24px rgba(41,182,246,.15); transform:translateY(-1px); }
+.btn-primary.g { border-color:rgba(38,198,160,.4); background:rgba(38,198,160,.07); color:#5af0d0; }
+.btn-primary.g:hover { background:rgba(38,198,160,.14); box-shadow:0 0 24px rgba(38,198,160,.15); }
+
+/* Result */
+.result-row { border:1px solid var(--line); border-radius:7px; display:grid; grid-template-columns:54px 1fr auto; align-items:center; margin-top:14px; overflow:hidden; animation:fadeIn .4s ease; }
+.r-icon { display:flex; align-items:center; justify-content:center; font-size:20px; height:60px; border-right:1px solid var(--line); }
+.r-body { padding:0 16px; }
+.r-label { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:2px; }
+.r-value { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; }
+.r-tag { padding:0 18px; font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; border-left:1px solid var(--line); height:60px; display:flex; align-items:center; }
+.res-pers { background:rgba(41,182,246,.05); border-color:rgba(41,182,246,.25); }
+.res-pers .r-value { color:var(--glow3); }
+.res-pers .r-tag  { color:var(--glow); background:rgba(41,182,246,.08); }
+.res-stunt { background:rgba(38,198,160,.05); border-color:rgba(38,198,160,.25); }
+.res-stunt .r-value { color:#5af0d0; }
+.res-stunt .r-tag  { color:var(--green); background:rgba(38,198,160,.08); }
+
+/* ─── INFO BLOCKS ─── */
+.info-block { margin-bottom:22px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+.info-block:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.info-block-title { font-family:'Syne',sans-serif; font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:8px; letter-spacing:-.2px; }
+.info-block-text { font-size:13px; line-height:1.7; color:var(--text2); }
+.type-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+.type-card { border:1px solid var(--line); border-radius:8px; padding:13px; background:var(--bg3); }
+.type-card-icon { font-size:18px; margin-bottom:5px; }
+.type-card-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:3px; }
+.type-card-desc { font-size:11.5px; color:var(--text2); line-height:1.5; }
+.param-list { list-style:none; display:flex; flex-direction:column; gap:7px; margin-top:8px; }
+.param-list li { display:flex; align-items:flex-start; gap:10px; font-size:12.5px; color:var(--text2); line-height:1.5; }
+.pnum { width:20px; height:20px; border-radius:4px; background:var(--bg3); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:var(--glow); flex-shrink:0; margin-top:1px; }
+.pnum.g { color:var(--green); }
+.status-table { width:100%; border-collapse:collapse; margin-top:8px; }
+.status-table td { padding:8px 0; font-size:12.5px; border-bottom:1px solid var(--line); vertical-align:middle; }
+.status-table tr:last-child td { border-bottom:none; }
+.s-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:7px; }
+.s-name { color:var(--text); font-weight:500; }
+.s-desc { color:var(--text2); font-size:11px; display:block; margin-left:15px; }
+.s-badge { font-size:10.5px; font-weight:600; padding:2px 8px; border-radius:4px; white-space:nowrap; float:right; }
+
+/* ─── FOOTER ─── */
+footer { border-top:1px solid var(--line); }
+.footer-grid { display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid var(--line); }
+.footer-cell { border-right:1px solid var(--line); padding:24px 28px; }
+.footer-cell-title { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:12px; }
+.footer-link { display:block; font-size:13px; color:var(--text2); text-decoration:none; margin-bottom:6px; transition:color .2s; }
+.footer-link:hover { color:var(--text); }
+.footer-sub { font-size:11.5px; color:var(--text3); line-height:1.7; margin-top:6px; }
+.footer-copy { padding:14px 28px; border-top:1px solid var(--line); font-size:11px; color:var(--text3); display:flex; justify-content:space-between; align-items:center; }
+.footer-tag { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--glow); border:1px solid rgba(41,182,246,.25); padding:3px 10px; border-radius:100px; }
+</style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-    <h1>AI Multi-Predictor System by Hasbi Takumi</h1>
-    <p>RPL Projects - Smart Solutions - PSASMP1</p>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      Taku<span>Flow</span>
+    </div>
+    <nav>
+      <a href="#">Personality</a>
+      <a href="#">Stunting</a>
+      <a href="#">Tentang</a>
+      <a href="#">Dokumentasi</a>
+    </nav>
+    <div class="header-tag">PSASMP1</div>
+  </div>
 </header>
 
-<div class="container">
-    <!-- Navigasi Tab -->
-    <div class="tabs">
-        <button class="tab-btn {% if active_tab != 'stunting' %}active{% endif %}" onclick="showTab('personality')">🧠 Personality</button>
-        <button class="tab-btn {% if active_tab == 'stunting' %}active{% endif %}" onclick="showTab('stunting')">👶 Cek Stunting</button>
-    </div>
-
-    <!-- FORM PERSONALITY -->
-    <div id="personality" class="form-section {% if active_tab != 'stunting' %}active{% endif %}">
-        <h2>Personality Predictor</h2>
-        <form action="/predict_personality" method="POST">
-            <div class="grid-container">
-                <div class="card" style="background:#e3f2fd;">
-                    <label>⏱️ Time Alone</label>
-                    <input type="number" name="time_spent_alone" value="10">
-                </div>
-                <div class="card" style="background:#e8eaf6;">
-                    <label>😨 Stage Fear</label>
-                    <select name="stage_fear">
-                        <option value="1">Yes</option><option value="0">No</option>
-                    </select>
-                </div>
-                <div class="card" style="background:#e0f2fe;">
-                    <label>🎉 Social Events</label>
-                    <input type="number" name="social_event" value="5">
-                </div>
-                <div class="card" style="background:#fce4ec;">
-                    <label>🚶‍♂️ Going Outside</label>
-                    <input type="number" name="going_outside" value="3">
-                </div>
-                <div class="card" style="background:#e8f5e9;">
-                    <label>😴 Drained</label>
-                    <select name="drained">
-                        <option value="1">Yes</option><option value="0">No</option>
-                    </select>
-                </div>
-                <div class="card" style="background:#fff3e0;">
-                    <label>👥 Friends Circle</label>
-                    <input type="number" name="friends" value="5">
-                </div>
-                <div class="card" style="background:#f3e5f5;">
-                    <label>📱 Post Freq</label>
-                    <input type="number" name="post_freq" value="2">
-                </div>
-            </div>
-            <button type="submit" class="btn-submit btn-pers">Mulai Prediksi Karakter</button>
-        </form>
-
-        {% if hasil_pers %}
-        <div class="result-box res-pers">
-            <h3>✨ Hasil Prediksi: <strong>{{ hasil_pers }}</strong></h3>
-        </div>
-        {% endif %}
-    </div>
-
-    <!-- FORM STUNTING -->
-    <div id="stunting" class="form-section {% if active_tab == 'stunting' %}active{% endif %}">
-        <h2>Cek Status Gizi (Stunting)</h2>
-        <form action="/predict_stunting" method="POST">
-            <div class="grid-container">
-                <div class="card" style="background:#fff9c4;">
-                    <label>📅 Umur (Bulan)</label>
-                    <input type="number" name="umur" placeholder="Contoh: 24">
-                </div>
-                <div class="card" style="background:#b2ebf2;">
-                    <label>🚻 Jenis Kelamin</label>
-                    <select name="jk">
-                        <option value="0">Laki-laki</option>
-                        <option value="1">Perempuan</option>
-                    </select>
-                </div>
-                <div class="card" style="background:#c8e6c9;">
-                    <label>📏 Tinggi (cm)</label>
-                    <input type="number" step="0.1" name="tinggi" placeholder="Contoh: 85.5">
-                </div>
-            </div>
-            <button type="submit" class="btn-submit btn-stunt">Cek Status Gizi</button>
-        </form>
-
-        {% if hasil_stunting %}
-        <div class="result-box res-stunt">
-            <h3>📊 Status Gizi: <strong>{{ hasil_stunting }}</strong></h3>
-        </div>
-        {% endif %}
-    </div>
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <div class="ticker-item">AI Multi-Predictor</div>
+    <div class="ticker-item">Personality Detection</div>
+    <div class="ticker-item">Stunting Analysis</div>
+    <div class="ticker-item">Machine Learning</div>
+    <div class="ticker-item">by Hasbi Takumi</div>
+    <div class="ticker-item">RPL Projects</div>
+    <div class="ticker-item">Smart Solutions</div>
+    <div class="ticker-item">Real-time Prediction</div>
+    <div class="ticker-item">AI Multi-Predictor</div>
+    <div class="ticker-item">Personality Detection</div>
+    <div class="ticker-item">Stunting Analysis</div>
+    <div class="ticker-item">Machine Learning</div>
+    <div class="ticker-item">by Hasbi Takumi</div>
+    <div class="ticker-item">RPL Projects</div>
+    <div class="ticker-item">Smart Solutions</div>
+    <div class="ticker-item">Real-time Prediction</div>
+  </div>
 </div>
 
-<script>
-    function showTab(tabName) {
-        document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
-    }
-</script>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-split">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Powered by Machine Learning</div>
+      <h1 class="hero-title">Smart<br>Predictions,<br><em>Instantly.</em></h1>
+    </div>
+    <div class="hero-right">
+      <p class="hero-desc">
+        Analisis kepribadian dan status gizi anak secara real-time
+        menggunakan model AI yang dilatih khusus — cepat, akurat,
+        dan mudah digunakan untuk siapa saja.
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val">2</div><div class="hero-stat-label">Modul AI</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">7</div><div class="hero-stat-label">Parameter Input</div></div>
+        <div class="hero-stat"><div class="hero-stat-val g">4</div><div class="hero-stat-label">Kategori Output</div></div>
+        <div class="hero-stat"><div class="hero-stat-val g">ML</div><div class="hero-stat-label">Berbasis AI Model</div></div>
+      </div>
+    </div>
+  </div>
+</section>
 
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('personality',this)">
+    <span class="tab-num">01</span>
+    Personality Predictor
+    <span class="tab-sub">Introvert / Extrovert</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('stunting',this)">
+    <span class="tab-num">02</span>
+    Cek Stunting Anak
+    <span class="tab-sub">Status Gizi WHO</span>
+  </button>
+</div>
+
+<!-- ════════════ PANEL: PERSONALITY ════════════ -->
+<div id="personality" class="panel active">
+
+  <div class="module-header">
+    <div class="mh-cell">
+      <div class="mh-label">Modul 01</div>
+      <div class="mh-title">Personality<br>Predictor</div>
+      <div class="mh-badge blue">● Analisis Karakter</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Cara Kerja</div>
+      <div class="mh-desc">Model menganalisis 7 indikator kebiasaan sosial untuk memprediksi apakah kamu cenderung <strong style="color:var(--glow3)">Introvert</strong> atau <strong style="color:#c084fc">Extrovert</strong> berdasarkan pola aktivitasmu sehari-hari.</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Introvert</div>
+      <div class="mh-desc">Mendapat energi dari waktu sendiri. Merasa lelah setelah bergaul lama. Nyaman dengan lingkaran pertemanan kecil yang dalam dan bermakna.</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Extrovert</div>
+      <div class="mh-desc">Mendapat energi dari interaksi sosial. Aktif di acara publik. Suka bertemu banyak orang dan sering tampil di media sosial.</div>
+    </div>
+  </div>
+
+  <div class="illus-row">
+    <div class="illus-cell">
+      <div class="illus-label">Introvert Pattern — Small Deep Network</div>
+      <svg width="280" height="155" viewBox="0 0 280 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="140" cy="78" r="52" stroke="rgba(41,182,246,0.07)" stroke-width="1"/>
+        <circle cx="140" cy="78" r="30" stroke="rgba(41,182,246,0.1)" stroke-width="1" stroke-dasharray="4 3"/>
+        <circle cx="140" cy="78" r="20" fill="rgba(41,182,246,0.06)" stroke="rgba(41,182,246,0.35)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <circle cx="140" cy="78" r="7" fill="#29b6f6" opacity=".9"/>
+        <line x1="140" y1="78" x2="82"  y2="46" stroke="rgba(41,182,246,0.22)" stroke-width="1.2"/>
+        <line x1="140" y1="78" x2="198" y2="44" stroke="rgba(41,182,246,0.22)" stroke-width="1.2"/>
+        <line x1="140" y1="78" x2="200" y2="112" stroke="rgba(41,182,246,0.22)" stroke-width="1.2"/>
+        <circle cx="82"  cy="46"  r="9" stroke="rgba(41,182,246,0.4)" stroke-width="1.2" fill="rgba(41,182,246,0.06)"/>
+        <circle cx="82"  cy="46"  r="3.5" fill="rgba(41,182,246,0.7)"/>
+        <circle cx="198" cy="44"  r="9" stroke="rgba(41,182,246,0.4)" stroke-width="1.2" fill="rgba(41,182,246,0.06)"/>
+        <circle cx="198" cy="44"  r="3.5" fill="rgba(41,182,246,0.7)"/>
+        <circle cx="200" cy="112" r="9" stroke="rgba(41,182,246,0.4)" stroke-width="1.2" fill="rgba(41,182,246,0.06)"/>
+        <circle cx="200" cy="112" r="3.5" fill="rgba(41,182,246,0.7)"/>
+        <text x="140" y="144" text-anchor="middle" font-size="9" fill="rgba(41,182,246,0.35)" font-family="DM Sans,sans-serif">3 koneksi dalam · energi dari dalam</text>
+      </svg>
+    </div>
+    <div class="illus-cell">
+      <div class="illus-label">Extrovert Pattern — Wide Active Network</div>
+      <svg width="280" height="155" viewBox="0 0 280 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="140" cy="78" r="62" stroke="rgba(192,132,252,0.08)" stroke-width="1" stroke-dasharray="5 4"/>
+        <circle cx="140" cy="78" r="10" fill="#c084fc" opacity=".9"/>
+        <line x1="140" y1="78" x2="66"  y2="40"  stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="140" y2="16"  stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="214" y2="40"  stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="234" y2="78"  stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="214" y2="116" stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="140" y2="140" stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="66"  y2="116" stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <line x1="140" y1="78" x2="46"  y2="78"  stroke="rgba(192,132,252,0.2)" stroke-width="1"/>
+        <circle cx="66"  cy="40"  r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="66"  cy="40"  r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="140" cy="16"  r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="140" cy="16"  r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="214" cy="40"  r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="214" cy="40"  r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="234" cy="78"  r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="234" cy="78"  r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="214" cy="116" r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="214" cy="116" r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="140" cy="140" r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="140" cy="140" r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="66"  cy="116" r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="66"  cy="116" r="3" fill="rgba(192,132,252,0.8)"/>
+        <circle cx="46"  cy="78"  r="7" stroke="rgba(192,132,252,0.45)" stroke-width="1" fill="rgba(192,132,252,0.07)"/>
+        <circle cx="46"  cy="78"  r="3" fill="rgba(192,132,252,0.8)"/>
+        <text x="140" y="153" text-anchor="middle" font-size="9" fill="rgba(192,132,252,0.35)" font-family="DM Sans,sans-serif">8 koneksi luas · energi dari interaksi</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="form-content">
+    <div class="form-side">
+      <div class="section-eyebrow">Input Parameter</div>
+      <form action="/predict_personality" method="POST">
+        <div class="input-rows">
+          <div class="input-row">
+            <div class="input-cell">
+              <label>⏱ Time Spent Alone</label>
+              <input type="number" name="time_spent_alone" value="10" placeholder="jam / hari">
+            </div>
+            <div class="input-cell">
+              <label>😨 Stage Fear</label>
+              <select name="stage_fear">
+                <option value="1">Yes — Takut tampil</option>
+                <option value="0">No — Tidak takut</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-cell">
+              <label>🎉 Social Events</label>
+              <input type="number" name="social_event" value="5" placeholder="per bulan">
+            </div>
+            <div class="input-cell">
+              <label>🚶 Going Outside</label>
+              <input type="number" name="going_outside" value="3" placeholder="hari / minggu">
+            </div>
+          </div>
+          <div class="input-row">
+            <div class="input-cell">
+              <label>😴 Feel Drained</label>
+              <select name="drained">
+                <option value="1">Yes — Mudah lelah</option>
+                <option value="0">No — Tetap berenergi</option>
+              </select>
+            </div>
+            <div class="input-cell">
+              <label>👥 Friends Circle</label>
+              <input type="number" name="friends" value="5" placeholder="jumlah teman dekat">
+            </div>
+          </div>
+          <div class="input-row solo">
+            <div class="input-cell">
+              <label>📱 Post Frequency</label>
+              <input type="number" name="post_freq" value="2" placeholder="postingan per minggu">
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn-primary">↗ &nbsp;Mulai Prediksi Kepribadian</button>
+        </div>
+      </form>
+      {% if hasil_pers %}
+      <div class="result-row res-pers">
+        <div class="r-icon">🧠</div>
+        <div class="r-body"><div class="r-label">Hasil Prediksi AI</div><div class="r-value">{{ hasil_pers }}</div></div>
+        <div class="r-tag">Selesai ✓</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="info-side">
+      <div class="section-eyebrow">Panduan & Info</div>
+      <div class="info-block">
+        <div class="info-block-title">Parameter yang dianalisis</div>
+        <ul class="param-list">
+          <li><span class="pnum">1</span>Berapa jam per hari kamu habiskan sendirian (tanpa interaksi sosial)</li>
+          <li><span class="pnum">2</span>Apakah kamu merasa takut saat harus tampil atau berbicara di depan umum</li>
+          <li><span class="pnum">3</span>Seberapa sering kamu menghadiri acara sosial dalam sebulan</li>
+          <li><span class="pnum">4</span>Seberapa sering kamu pergi keluar rumah untuk aktivitas sosial</li>
+          <li><span class="pnum">5</span>Apakah kamu merasa kelelahan (drained) setelah bersosialisasi lama</li>
+          <li><span class="pnum">6</span>Jumlah teman dekat dalam lingkaran pertemananmu</li>
+          <li><span class="pnum">7</span>Seberapa sering kamu memposting konten di media sosial per minggu</li>
+        </ul>
+      </div>
+      <div class="info-block">
+        <div class="info-block-title">Kemungkinan hasil prediksi</div>
+        <div class="type-grid">
+          <div class="type-card">
+            <div class="type-card-icon">🧘</div>
+            <div class="type-card-name" style="color:var(--glow3)">Introvert</div>
+            <div class="type-card-desc">Suka ketenangan, lingkaran kecil, waktu sendiri untuk mengisi ulang energi.</div>
+          </div>
+          <div class="type-card">
+            <div class="type-card-icon">🎤</div>
+            <div class="type-card-name" style="color:#c084fc">Extrovert</div>
+            <div class="type-card-desc">Energik saat bergaul, suka keramaian, aktif berinteraksi dan jaringan luas.</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-block">
+        <div class="info-block-title">Catatan penting</div>
+        <div class="info-block-text">Tidak ada tipe yang lebih baik dari yang lain. Kepribadian adalah spektrum — banyak orang berada di tengah (ambivert). Hasil ini berbasis data statistik, bukan diagnosis psikologis formal.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ PANEL: STUNTING ════════════ -->
+<div id="stunting" class="panel">
+
+  <div class="module-header">
+    <div class="mh-cell">
+      <div class="mh-label">Modul 02</div>
+      <div class="mh-title">Cek Stunting<br>Anak</div>
+      <div class="mh-badge green">● Status Gizi WHO</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Apa itu Stunting?</div>
+      <div class="mh-desc">Stunting adalah gagal tumbuh pada anak akibat kekurangan gizi kronis, ditandai tinggi badan yang jauh di bawah standar usianya. Dampaknya permanen jika tidak ditangani dini.</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Metode Perhitungan</div>
+      <div class="mh-desc">Prediksi menggunakan <strong style="color:var(--green)">Z-Score WHO</strong> berdasarkan data tinggi badan, umur dalam bulan, dan jenis kelamin sesuai standar pertumbuhan anak internasional 2006.</div>
+    </div>
+    <div class="mh-cell">
+      <div class="mh-label">Disclaimer</div>
+      <div class="mh-desc">Hasil ini bukan diagnosis medis resmi. Selalu konsultasikan dengan dokter anak atau ahli gizi untuk evaluasi menyeluruh dan penanganan yang tepat bagi anak.</div>
+    </div>
+  </div>
+
+  <div class="illus-row">
+    <div class="illus-cell">
+      <div class="illus-label">Kurva Pertumbuhan WHO (TB/U)</div>
+      <svg width="300" height="150" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="42" y1="12" x2="42" y2="118" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <line x1="42" y1="118" x2="278" y2="118" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <line x1="42" y1="28"  x2="278" y2="28"  stroke="rgba(248,113,113,0.2)"  stroke-width="1" stroke-dasharray="4 3"/>
+        <line x1="42" y1="52"  x2="278" y2="52"  stroke="rgba(251,191,36,0.25)"  stroke-width="1" stroke-dasharray="4 3"/>
+        <line x1="42" y1="76"  x2="278" y2="76"  stroke="rgba(38,198,160,0.4)"   stroke-width="1.5"/>
+        <text x="36" y="31"  text-anchor="end" font-size="8" fill="rgba(248,113,113,0.6)" font-family="DM Sans">-3</text>
+        <text x="36" y="55"  text-anchor="end" font-size="8" fill="rgba(251,191,36,0.6)"  font-family="DM Sans">-2</text>
+        <text x="36" y="79"  text-anchor="end" font-size="8" fill="rgba(38,198,160,0.7)"  font-family="DM Sans"> 0</text>
+        <path d="M42 104 C90 90,140 72,200 54,250 40" stroke="rgba(38,198,160,0.65)" stroke-width="2" fill="none"/>
+        <path d="M42 112 C90 104,140 92,200 80,250 68" stroke="rgba(251,191,36,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="5 3"/>
+        <path d="M42 118 C90 114,140 108,200 100,250 90" stroke="rgba(248,113,113,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="3 3"/>
+        <circle cx="174" cy="60" r="5" fill="#26c6a0"/>
+        <circle cx="174" cy="60" r="9" stroke="rgba(38,198,160,0.3)" stroke-width="1"/>
+        <line x1="174" y1="60" x2="174" y2="118" stroke="rgba(38,198,160,0.2)" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="160" y="132" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.18)" font-family="DM Sans">Umur (Bulan) →</text>
+        <text x="22" y="68" text-anchor="middle" font-size="8" fill="rgba(255,255,255,0.18)" font-family="DM Sans" transform="rotate(-90,22,68)">TB (cm)</text>
+        <text x="258" y="36" font-size="8" fill="rgba(248,113,113,0.5)" font-family="DM Sans">Severe</text>
+        <text x="258" y="60" font-size="8" fill="rgba(251,191,36,0.5)"  font-family="DM Sans">Stunted</text>
+        <text x="258" y="74" font-size="8" fill="rgba(38,198,160,0.6)"  font-family="DM Sans">Normal</text>
+      </svg>
+    </div>
+    <div class="illus-cell">
+      <div class="illus-label">Distribusi Z-Score Populasi</div>
+      <svg width="300" height="150" viewBox="0 0 300 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M28 120 C48 120,76 30,150 16,224 30,252 120,272 120" stroke="rgba(41,182,246,0.35)" stroke-width="1.5" fill="none"/>
+        <path d="M28 120 C48 120,76 30,150 16,224 30,252 120,272 120" fill="rgba(41,182,246,0.04)"/>
+        <path d="M28 120 C40 120,58 72,74 42 L74 120Z" fill="rgba(248,113,113,0.1)"/>
+        <path d="M74 42 C88 26,116 18,134 16 L134 120 L74 120Z" fill="rgba(251,191,36,0.08)"/>
+        <path d="M134 16 C150 14,172 20,190 30 L190 120 L134 120Z" fill="rgba(38,198,160,0.08)"/>
+        <line x1="74"  y1="16" x2="74"  y2="120" stroke="rgba(248,113,113,0.45)" stroke-width="1" stroke-dasharray="3 2"/>
+        <line x1="112" y1="16" x2="112" y2="120" stroke="rgba(251,191,36,0.4)"  stroke-width="1" stroke-dasharray="3 2"/>
+        <line x1="150" y1="14" x2="150" y2="120" stroke="rgba(41,182,246,0.3)"  stroke-width="1"/>
+        <text x="50"  y="134" text-anchor="middle" font-size="8" fill="rgba(248,113,113,0.65)" font-family="DM Sans">−3 SD</text>
+        <text x="112" y="134" text-anchor="middle" font-size="8" fill="rgba(251,191,36,0.65)"  font-family="DM Sans">−2 SD</text>
+        <text x="150" y="134" text-anchor="middle" font-size="8" fill="rgba(41,182,246,0.5)"   font-family="DM Sans">Median</text>
+        <text x="50"  y="12"  text-anchor="middle" font-size="8" fill="rgba(248,113,113,0.55)" font-family="DM Sans">Severely</text>
+        <text x="96"  y="12"  text-anchor="middle" font-size="8" fill="rgba(251,191,36,0.55)"  font-family="DM Sans">Stunted</text>
+        <text x="172" y="12" text-anchor="middle" font-size="8" fill="rgba(38,198,160,0.65)"  font-family="DM Sans">Normal</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="form-content">
+    <div class="form-side">
+      <div class="section-eyebrow">Input Data Anak</div>
+      <form action="/predict_stunting" method="POST">
+        <div class="input-rows">
+          <div class="input-row">
+            <div class="input-cell">
+              <label>📅 Umur (Bulan)</label>
+              <input type="number" name="umur" placeholder="0 – 60 bulan">
+            </div>
+            <div class="input-cell">
+              <label>🚻 Jenis Kelamin</label>
+              <select name="jk">
+                <option value="0">Laki-laki</option>
+                <option value="1">Perempuan</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-row solo">
+            <div class="input-cell">
+              <label>📏 Tinggi Badan (cm)</label>
+              <input type="number" step="0.1" name="tinggi" placeholder="Contoh: 85.5 cm">
+            </div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn-primary g">↗ &nbsp;Cek Status Gizi Anak</button>
+        </div>
+      </form>
+      {% if hasil_stunting %}
+      <div class="result-row res-stunt">
+        <div class="r-icon">👶</div>
+        <div class="r-body"><div class="r-label">Status Gizi Anak</div><div class="r-value">{{ hasil_stunting }}</div></div>
+        <div class="r-tag">Hasil ✓</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="info-side">
+      <div class="section-eyebrow">Panduan & Klasifikasi</div>
+      <div class="info-block">
+        <div class="info-block-title">Cara mengisi data dengan benar</div>
+        <ul class="param-list">
+          <li><span class="pnum g">1</span>Masukkan umur anak dalam <strong style="color:var(--text)">bulan</strong>, bukan tahun. Contoh: 2 tahun 3 bulan = 27 bulan.</li>
+          <li><span class="pnum g">2</span>Pilih jenis kelamin anak sesuai data — standar Z-Score berbeda untuk laki-laki dan perempuan.</li>
+          <li><span class="pnum g">3</span>Anak &lt;2 tahun: ukur <strong style="color:var(--text)">telentang</strong>. Anak ≥2 tahun: ukur <strong style="color:var(--text)">berdiri tegak</strong> tanpa alas kaki.</li>
+        </ul>
+      </div>
+      <div class="info-block">
+        <div class="info-block-title">Klasifikasi status gizi (WHO 2006)</div>
+        <table class="status-table">
+          <tr>
+            <td><span class="s-dot" style="background:#5af0d0;box-shadow:0 0 5px #26c6a0"></span><span class="s-name">Normal</span><span class="s-desc">Tinggi badan sesuai standar usia</span></td>
+            <td><span class="s-badge" style="background:rgba(38,198,160,.1);color:#5af0d0">≥ −2 SD</span></td>
+          </tr>
+          <tr>
+            <td><span class="s-dot" style="background:#fbbf24"></span><span class="s-name">Stunted</span><span class="s-desc">Pendek, perlu perhatian gizi serius</span></td>
+            <td><span class="s-badge" style="background:rgba(251,191,36,.1);color:#fbbf24">&lt; −2 SD</span></td>
+          </tr>
+          <tr>
+            <td><span class="s-dot" style="background:#f87171"></span><span class="s-name">Severely Stunted</span><span class="s-desc">Sangat pendek, butuh intervensi segera</span></td>
+            <td><span class="s-badge" style="background:rgba(248,113,113,.1);color:#f87171">&lt; −3 SD</span></td>
+          </tr>
+          <tr>
+            <td><span class="s-dot" style="background:#818cf8"></span><span class="s-name">Tinggi</span><span class="s-desc">Di atas rata-rata, perlu evaluasi hormonal</span></td>
+            <td><span class="s-badge" style="background:rgba(129,140,248,.1);color:#818cf8">&gt; +3 SD</span></td>
+          </tr>
+        </table>
+      </div>
+      <div class="info-block">
+        <div class="info-block-title" style="color:#f87171">⚠ Penting</div>
+        <div class="info-block-text">Hasil ini <strong style="color:var(--text)">bukan diagnosis medis</strong>. Selalu konsultasikan dengan dokter anak atau ahli gizi untuk evaluasi menyeluruh dan penanganan yang tepat bagi anak Anda.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-cell">
+      <div class="logo" style="margin-bottom:8px">
+        <div class="logo-mark"></div>
+        Taku<span>Flow</span>
+      </div>
+      <div class="footer-sub">AI Multi-Predictor System<br>RPL Projects — PSASMP1</div>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-cell-title">Modul</div>
+      <a class="footer-link" href="#">Personality Predictor</a>
+      <a class="footer-link" href="#">Cek Stunting Anak</a>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-cell-title">Referensi</div>
+      <a class="footer-link" href="#">WHO Growth Standards 2006</a>
+      <a class="footer-link" href="#">Big Five Personality Model</a>
+      <a class="footer-link" href="#">Scikit-Learn Documentation</a>
+    </div>
+    <div class="footer-cell">
+      <div class="footer-cell-title">Dibuat oleh</div>
+      <div class="footer-sub" style="color:var(--text2);font-size:14px;font-weight:500">Hasbi Takumi</div>
+      <div class="footer-sub" style="margin-top:4px">RPL Projects · 2025</div>
+    </div>
+  </div>
+  <div class="footer-copy">
+    <span>© 2025 TakuFlow AI — Hasbi Takumi</span>
+    <span class="footer-tag">PSASMP1</span>
+  </div>
+</footer>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // Mencegah refresh halaman
+
+        const formData = new FormData(form);
+        const actionUrl = form.getAttribute('action');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Cari container hasil di dalam panel yang aktif
+        const resultContainer = form.closest('.form-side');
+        
+        // Animasi loading sederhana pada tombol
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = "Sedang Memproses...";
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.hasil) {
+                // Hapus result-row lama jika ada
+                const oldResult = resultContainer.querySelector('.result-row');
+                if (oldResult) oldResult.remove();
+
+                // Tentukan icon dan class berdasarkan modul
+                const isStunting = actionUrl.includes('stunting');
+                const resultHtml = `
+                    <div class="result-row ${isStunting ? 'res-stunt' : 'res-pers'}">
+                        <div class="r-icon">${isStunting ? '👶' : '🧠'}</div>
+                        <div class="r-body">
+                            <div class="r-label">${isStunting ? 'Status Gizi Anak' : 'Hasil Prediksi AI'}</div>
+                            <div class="r-value">${data.hasil}</div>
+                        </div>
+                        <div class="r-tag">Selesai ✓</div>
+                    </div>
+                `;
+                
+                // Masukkan hasil ke bawah tombol
+                form.insertAdjacentHTML('afterend', resultHtml);
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Terjadi kesalahan koneksi ke server.");
+        } finally {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+});
+</script>
 </body>
 </html>
